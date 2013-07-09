@@ -125,26 +125,24 @@ class ExpiringDict(OrderedDict):
 
     def fromkeys(self):
         " Create a new dictionary with keys from seq and values set to value. "
-        raise NotImplementedError(REASON)
+        raise NotImplementedError()
 
     def iteritems(self):
         """ Return an iterator over the dictionary's (key, value) pairs. """
-        raise NotImplementedError(REASON)
+        raise NotImplementedError()
 
     def itervalues(self):
         """ Return an iterator over the dictionary's values. """
-        raise NotImplementedError(REASON)
+        raise NotImplementedError()
 
     def viewitems(self):
         " Return a new view of the dictionary's items ((key, value) pairs). "
-        raise NotImplementedError(REASON)
+        raise NotImplementedError()
 
     def viewkeys(self):
         """ Return a new view of the dictionary's keys. """
-        raise NotImplementedError(REASON)
+        raise NotImplementedError()
 
     def viewvalues(self):
         """ Return a new view of the dictionary's values. """
-        raise NotImplementedError(REASON)
-
-REASON = "Please refer to arsenal/expiringdict.py for more info."
+        raise NotImplementedError()
