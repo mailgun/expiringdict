@@ -46,7 +46,7 @@ cache["key"] = "value"
 cache.get("key")
 ```
 
-Licence
+License
 -------
 
 (The MIT License)
