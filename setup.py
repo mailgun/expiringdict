@@ -13,4 +13,4 @@ setup(name='expiringdict',
       packages=find_packages(exclude=['tests']),
       include_package_data=True,
       zip_safe=True,
-      extras_require={'test': ['nose', 'mock']})
+      extras_require={'test': ['nose', 'mock', 'coverage']})
