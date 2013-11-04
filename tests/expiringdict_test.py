@@ -1,5 +1,7 @@
-from . import *
-from expiringdict import *
+from collections import OrderedDict
+from mock import Mock, patch
+from nose.tools import ok_, eq_, assert_raises
+from expiringdict import ExpiringDict
 from time import sleep
 
 
@@ -121,3 +123,20 @@ def test_not_implemented():
     assert_raises(NotImplementedError, d.viewitems)
     assert_raises(NotImplementedError, d.viewkeys)
     assert_raises(NotImplementedError, d.viewvalues)
+
+
+def test_update_at_the_top_capacity():
+    """
+    Reveals a bug where an update of an existing key when a dictionary has
+    maxed out its capacity resulting in a loss of the least recently added
+    element.
+    """
+    # Given
+    d = ExpiringDict(max_len=3, max_age_seconds=10)
+    d['a'] = 1
+    d['b'] = 2
+    d['c'] = 3
+    # When
+    d['b'] = 4
+    # Then: key `a` is still in the dictionary.
+    eq_({'a': 1, 'b': 4, 'c': 3}, d.to_dict())

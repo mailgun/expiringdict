@@ -63,9 +63,9 @@ class ExpiringDict(OrderedDict):
     def __setitem__(self, key, value):
         """ Set d[key] to value. """
         with self.lock:
-            if len(self) == self.max_len:
-                self.popitem(last=False)
             OrderedDict.__setitem__(self, key, (value, time()))
+            if len(self) > self.max_len:
+                self.popitem(last=False)
 
     def pop(self, key, default=None):
         """ Get item from the dict and remove it.
@@ -146,3 +146,6 @@ class ExpiringDict(OrderedDict):
     def viewvalues(self):
         """ Return a new view of the dictionary's values. """
         raise NotImplementedError()
+
+    def to_dict(self):
+        return dict(self.items())
