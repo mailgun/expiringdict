@@ -38,7 +38,7 @@ class ExpiringDict(OrderedDict):
                 if time() - item[1] < self.max_age:
                     return True
                 else:
-                    del self[key]
+                    OrderedDict.__delitem__(self, key)
         except KeyError:
             pass
         return False
@@ -52,17 +52,23 @@ class ExpiringDict(OrderedDict):
             item = OrderedDict.__getitem__(self, key)
             item_age = time() - item[1]
             if item_age < self.max_age:
+                OrderedDict.__delitem__(self, key)
+                OrderedDict.__setitem__(self, key, item)
                 if with_age:
                     return item[0], item_age
                 else:
                     return item[0]
             else:
-                del self[key]
+                OrderedDict.__delitem__(self, key)
                 raise KeyError(key)
 
     def __setitem__(self, key, value):
         """ Set d[key] to value. """
         with self.lock:
+            try:
+                OrderedDict.__delitem__(self, key)
+            except KeyError as e:
+                pass
             OrderedDict.__setitem__(self, key, (value, time()))
             if len(self) > self.max_len:
                 self.popitem(last=False)
@@ -75,7 +81,7 @@ class ExpiringDict(OrderedDict):
         with self.lock:
             try:
                 item = OrderedDict.__getitem__(self, key)
-                del self[key]
+                OrderedDict.__delitem__(self, key)
                 return item[0]
             except KeyError:
                 return default
@@ -107,7 +113,7 @@ class ExpiringDict(OrderedDict):
         r = []
         for key in self:
             try:
-                r.append((key, self[key]))
+                r.append((key, self.__get_if_not_expired(key)))
             except KeyError:
                 pass
         return r
@@ -118,7 +124,7 @@ class ExpiringDict(OrderedDict):
         r = []
         for key in self:
             try:
-                r.append(self[key])
+                r.append(self.__get_if_not_expired(key))
             except KeyError:
                 pass
         return r
@@ -149,3 +155,16 @@ class ExpiringDict(OrderedDict):
 
     def to_dict(self):
         return dict(self.items())
+
+    def __get_if_not_expired(self, key):
+        """ Return the item of the dict.
+
+        Raises a KeyError if key is not in the map.
+        """
+        with self.lock:
+            item = OrderedDict.__getitem__(self, key)
+            item_age = time() - item[1]
+            if item_age < self.max_age:
+                return item[0]
+            else:
+                raise KeyError(key)
