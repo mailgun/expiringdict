@@ -16,8 +16,13 @@ NOTE: iteration over dict and also keys() do not remove expired values!
 '''
 
 from time import time
-from collections import OrderedDict
 from threading import RLock
+
+try:
+    from collections import OrderedDict
+except ImportError:
+    # Python < 2.7
+    from ordereddict import OrderedDict
 
 
 class ExpiringDict(OrderedDict):
