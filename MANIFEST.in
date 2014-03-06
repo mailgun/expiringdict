@@ -1,2 +1,3 @@
 recursive-include *.py
-include README.md LICENSE
+include LICENSE
+include README.rst
