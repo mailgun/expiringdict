@@ -3,7 +3,7 @@ import md5  # fix for "No module named _md5" error
 
 
 setup(name='expiringdict',
-      version='1.1.1',
+      version='1.1.2',
       description="Dictionary with auto-expiring values for caching purposes",
       long_description=open("README.rst").read(),
       author='Anton Efimenko',
