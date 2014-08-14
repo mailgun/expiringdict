@@ -15,7 +15,7 @@ The values stored in the following way:
 NOTE: iteration over dict and also keys() do not remove expired values!
 '''
 
-from time import time
+import time
 from threading import RLock
 
 try:
@@ -40,7 +40,7 @@ class ExpiringDict(OrderedDict):
         try:
             with self.lock:
                 item = OrderedDict.__getitem__(self, key)
-                if time() - item[1] < self.max_age:
+                if time.time() - item[1] < self.max_age:
                     return True
                 else:
                     del self[key]
@@ -55,7 +55,7 @@ class ExpiringDict(OrderedDict):
         """
         with self.lock:
             item = OrderedDict.__getitem__(self, key)
-            item_age = time() - item[1]
+            item_age = time.time() - item[1]
             if item_age < self.max_age:
                 if with_age:
                     return item[0], item_age
@@ -70,7 +70,7 @@ class ExpiringDict(OrderedDict):
         with self.lock:
             if len(self) == self.max_len:
                 self.popitem(last=False)
-            OrderedDict.__setitem__(self, key, (value, time()))
+            OrderedDict.__setitem__(self, key, (value, time.time()))
 
     def pop(self, key, default=None):
         """ Get item from the dict and remove it.
