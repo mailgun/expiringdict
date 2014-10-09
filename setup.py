@@ -5,11 +5,14 @@ except ImportError:
     # python 3 moved md5
     from hashlib import md5
 
+with open("README.rst") as f:
+    long_description = f.read()
+
 
 setup(name='expiringdict',
       version='1.1.3',
       description="Dictionary with auto-expiring values for caching purposes",
-      long_description=open("README.rst").read(),
+      long_description=long_description,
       author='Anton Efimenko',
       author_email='anton@mailgunhq.com',
       url='https://github.com/mailgun/expiringdict',
