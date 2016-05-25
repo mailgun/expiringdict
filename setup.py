@@ -10,7 +10,7 @@ with open("README.rst") as f:
 
 
 setup(name='expiringdict',
-      version='1.1.3',
+      version='1.1.4',
       description="Dictionary with auto-expiring values for caching purposes",
       long_description=long_description,
       author='Anton Efimenko',
