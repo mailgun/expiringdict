@@ -62,7 +62,6 @@ class ExpiringDict(OrderedDict):
                 else:
                     return item[0]
             else:
-                del self[key]
                 raise KeyError(key)
 
     def __setitem__(self, key, value):

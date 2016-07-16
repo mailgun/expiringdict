@@ -11,40 +11,71 @@ def test_create():
     eq_(len(d), 0)
 
 
-def test_basics():
+def test_setgetitem():
+    d = ExpiringDict(max_len=3, max_age_seconds=0.01)
+
+    d['a'] = 'x'
+    eq_(d['a'], 'x')
+
+
+def test_get_method_unset_item():
     d = ExpiringDict(max_len=3, max_age_seconds=0.01)
 
     eq_(d.get('a'), None)
-    d['a'] = 'x'
-    eq_(d.get('a'), 'x')
 
+
+def test_max_age_expires():
+    d = ExpiringDict(max_len=3, max_age_seconds=0.01)
+
+    d['a'] = 'x'
     sleep(0.01)
     eq_(d.get('a'), None)
+
+
+def test_update_existing_item():
+    d = ExpiringDict(max_len=3, max_age_seconds=0.01)
+
+    d['a'] = 'x'
+    eq_(d.get('a'), 'x')
 
     d['a'] = 'y'
     eq_(d.get('a'), 'y')
 
-    ok_('b' not in d)
+
+def test_key_in():
+    d = ExpiringDict(max_len=3, max_age_seconds=0.01)
+
     d['b'] = 'y'
     ok_('b' in d)
 
-    sleep(0.01)
+
+def test_key_not_in():
+    d = ExpiringDict(max_len=3, max_age_seconds=0.01)
+
     ok_('b' not in d)
 
-    # a is still in expiringdict, next values should expire it
-    d['c'] = 'x'
-    d['d'] = 'y'
-    d['e'] = 'z'
+
+def test_max_items_expires():
+    d = ExpiringDict(max_len=3, max_age_seconds=0.01)
+
+    d['a'] = 1
+    d['b'] = 2
+    d['c'] = 3
+    # a is still in expiringdict, next value should expire it
+    d['d'] = 4
 
     # dict if full
+    eq_(len(d), 3)
+    ok_('a' not in d)
+    ok_('b' in d)
     ok_('c' in d)
     ok_('d' in d)
 
-    d['f'] = '1'
-    # c should gone after that
-    ok_('c' not in d, 'Len of dict is more than max_len')
 
-    # test __delitem__
+def test_delitem():
+    d = ExpiringDict(max_len=3, max_age_seconds=0.01)
+
+    d['e'] = 1
     del d['e']
     ok_('e' not in d)
 
@@ -75,6 +106,7 @@ def test_iter():
 
     eq_([k for k in d.values()], ['x', 'y', 'z'])
     sleep(0.01)
+    # eq_(list(d.values()), [])
     eq_([k for k in d.values()], [])
 
 
@@ -97,7 +129,7 @@ def test_ttl():
     eq_(None, d.ttl('b'))
 
     # expired key
-    with patch.object(OrderedDict, '__getitem__',
+    with patch.object(ExpiringDict, '__getitem__',
                       Mock(return_value=('x', 10**9))):
         eq_(None, d.ttl('a'))
 
