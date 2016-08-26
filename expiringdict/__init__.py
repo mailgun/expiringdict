@@ -110,7 +110,7 @@ class ExpiringDict(OrderedDict):
     def items(self):
         """ Return a copy of the dictionary's list of (key, value) pairs. """
         r = []
-        for key in self:
+        for key in list(self):
             try:
                 r.append((key, self[key]))
             except KeyError:
@@ -121,7 +121,7 @@ class ExpiringDict(OrderedDict):
         """ Return a copy of the dictionary's list of values.
         See the note for dict.items(). """
         r = []
-        for key in self:
+        for key in list(self):
             try:
                 r.append(self[key])
             except KeyError:

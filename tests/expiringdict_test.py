@@ -121,3 +121,12 @@ def test_not_implemented():
     assert_raises(NotImplementedError, d.viewitems)
     assert_raises(NotImplementedError, d.viewkeys)
     assert_raises(NotImplementedError, d.viewvalues)
+
+
+def test_mutation():
+    d = ExpiringDict(10, 1)
+    d[1] = 1
+    sleep(0.5)
+    d[2] = 2
+    sleep(0.7)
+    d.items()
