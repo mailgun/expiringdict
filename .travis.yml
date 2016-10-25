@@ -1,0 +1,15 @@
+language: python
+python:
+- '2.7'
+- '3.3'
+- '3.4'
+- '3.5'
+- '3.6'
+- 'pypy'
+install:
+- pip install -r test_requirements.txt
+script:
+- nosetests --with-coverage --cover-package expiringdict
+- coverage report --fail-under=90
+after_success:
+- coveralls
