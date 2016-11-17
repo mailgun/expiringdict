@@ -1,9 +1,4 @@
 from setuptools import setup, find_packages
-try:
-    import md5  # fix for "No module named _md5" error
-except ImportError:
-    # python 3 moved md5
-    from hashlib import md5
 
 with open("README.rst") as f:
     long_description = f.read()
