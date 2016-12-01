@@ -28,7 +28,7 @@ except ImportError:
 class ExpiringDict(OrderedDict):
     def __init__(self, max_len, max_age_seconds):
         assert max_age_seconds >= 0
-        assert max_len >= 1
+        assert max_len >= 0
 
         OrderedDict.__init__(self)
         self.max_len = max_len
@@ -68,7 +68,7 @@ class ExpiringDict(OrderedDict):
     def __setitem__(self, key, value):
         """ Set d[key] to value. """
         with self.lock:
-            if len(self) == self.max_len:
+            if self.max_len > 0 and len(self) == self.max_len:
                 self.popitem(last=False)
             OrderedDict.__setitem__(self, key, (value, time.time()))
 
