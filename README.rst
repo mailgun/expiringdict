@@ -1,6 +1,8 @@
 expiringdict
 ------------
 
+[![Build Status](https://travis-ci.org/kophy/expiringdict.svg?branch=master)](https://travis-ci.org/kophy/expiringdict)
+
 expiringdict is a Python caching library. The core of the library is ExpiringDict class which
 is an ordered dictionary with auto-expiring values for caching purposes. Expiration happens on
 any access, object is locked during cleanup from expired values. ExpiringDict can not store
