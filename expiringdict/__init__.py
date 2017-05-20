@@ -69,7 +69,10 @@ class ExpiringDict(OrderedDict):
         """ Set d[key] to value. """
         with self.lock:
             if len(self) == self.max_len:
-                self.popitem(last=False)
+                try:
+                    self.popitem(last=False)
+                except:
+                    pass
             OrderedDict.__setitem__(self, key, (value, time.time()))
 
     def pop(self, key, default=None):
@@ -110,7 +113,8 @@ class ExpiringDict(OrderedDict):
     def items(self):
         """ Return a copy of the dictionary's list of (key, value) pairs. """
         r = []
-        for key in self:
+        keys = [key for key in self]
+        for key in keys:
             try:
                 r.append((key, self[key]))
             except KeyError:
@@ -121,7 +125,8 @@ class ExpiringDict(OrderedDict):
         """ Return a copy of the dictionary's list of values.
         See the note for dict.items(). """
         r = []
-        for key in self:
+        keys = [key for key in self]
+        for key in keys:
             try:
                 r.append(self[key])
             except KeyError:
