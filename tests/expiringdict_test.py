@@ -121,3 +121,12 @@ def test_not_implemented():
     assert_raises(NotImplementedError, d.viewitems)
     assert_raises(NotImplementedError, d.viewkeys)
     assert_raises(NotImplementedError, d.viewvalues)
+
+def test_callback():
+    callback = Mock()
+    d = ExpiringDict(max_len=10, max_age_seconds=0.01, callback=callback)
+
+    d['a'] = 'x'
+    sleep(0.01)
+    d.items()
+    callback.assert_called_with('a', 'x')

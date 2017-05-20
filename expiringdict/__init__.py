@@ -26,7 +26,7 @@ except ImportError:
 
 
 class ExpiringDict(OrderedDict):
-    def __init__(self, max_len, max_age_seconds):
+    def __init__(self, max_len, max_age_seconds, callback = None):
         assert max_age_seconds >= 0
         assert max_len >= 1
 
@@ -34,6 +34,7 @@ class ExpiringDict(OrderedDict):
         self.max_len = max_len
         self.max_age = max_age_seconds
         self.lock = RLock()
+        self.callback = callback
 
     def __contains__(self, key):
         """ Return True if the dict has a key, else return False. """
@@ -43,6 +44,8 @@ class ExpiringDict(OrderedDict):
                 if time.time() - item[1] < self.max_age:
                     return True
                 else:
+                    if self.callback:
+                        self.callback(key, item[0])
                     del self[key]
         except KeyError:
             pass
@@ -62,6 +65,8 @@ class ExpiringDict(OrderedDict):
                 else:
                     return item[0]
             else:
+                if self.callback:
+                    self.callback(key, item[0])
                 del self[key]
                 raise KeyError(key)
 
@@ -83,6 +88,8 @@ class ExpiringDict(OrderedDict):
         with self.lock:
             try:
                 item = OrderedDict.__getitem__(self, key)
+                if self.callback:
+                    self.callback(key, item[0])
                 del self[key]
                 return item[0]
             except KeyError:
@@ -113,8 +120,7 @@ class ExpiringDict(OrderedDict):
     def items(self):
         """ Return a copy of the dictionary's list of (key, value) pairs. """
         r = []
-        keys = [key for key in self]
-        for key in keys:
+        for key in list(self.keys()):
             try:
                 r.append((key, self[key]))
             except KeyError:
@@ -125,8 +131,7 @@ class ExpiringDict(OrderedDict):
         """ Return a copy of the dictionary's list of values.
         See the note for dict.items(). """
         r = []
-        keys = [key for key in self]
-        for key in keys:
+        for key in list(self.keys()):
             try:
                 r.append(self[key])
             except KeyError:
