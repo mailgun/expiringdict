@@ -15,11 +15,20 @@ The values stored in the following way:
 NOTE: iteration over dict and also keys() do not remove expired values!
 '''
 
+import sys
 import time
 from threading import RLock
 
 try:
-    from collections import OrderedDict
+    # Python 3.5 has a broken 'optimised' version of OrderedDict which can corrupt itself at high load.
+    # https://github.com/mailgun/expiringdict/issues/16
+    if sys.version_info.major == 3 and sys.version_info.minor == 5:
+        from test import support
+
+        py_coll = support.import_fresh_module('collections', blocked=['_collections'])
+        OrderedDict = py_coll.OrderedDict
+    else:
+        from collections import OrderedDict
 except ImportError:
     # Python < 2.7
     from ordereddict import OrderedDict
@@ -109,24 +118,12 @@ class ExpiringDict(OrderedDict):
 
     def items(self):
         """ Return a copy of the dictionary's list of (key, value) pairs. """
-        r = []
-        for key in self:
-            try:
-                r.append((key, self[key]))
-            except KeyError:
-                pass
-        return r
+        return [_ for _ in self.iteritems()]
 
     def values(self):
         """ Return a copy of the dictionary's list of values.
         See the note for dict.items(). """
-        r = []
-        for key in self:
-            try:
-                r.append(self[key])
-            except KeyError:
-                pass
-        return r
+        return [_ for _ in self.itervalues()]
 
     def fromkeys(self):
         " Create a new dictionary with keys from seq and values set to value. "
@@ -134,11 +131,16 @@ class ExpiringDict(OrderedDict):
 
     def iteritems(self):
         """ Return an iterator over the dictionary's (key, value) pairs. """
-        raise NotImplementedError()
+        for key in self:
+            try:
+                yield key, self[key]
+            except (KeyError, RuntimeError):
+                pass
 
     def itervalues(self):
         """ Return an iterator over the dictionary's values. """
-        raise NotImplementedError()
+        for _, value in self.iteritems():
+            yield value
 
     def viewitems(self):
         " Return a new view of the dictionary's items ((key, value) pairs). "
@@ -151,3 +153,6 @@ class ExpiringDict(OrderedDict):
     def viewvalues(self):
         """ Return a new view of the dictionary's values. """
         raise NotImplementedError()
+
+    def __len__(self):
+        return len(self.items())

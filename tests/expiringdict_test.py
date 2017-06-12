@@ -59,10 +59,11 @@ def test_pop():
 
 def test_repr():
     d = ExpiringDict(max_len=2, max_age_seconds=0.01)
+    eq_(str(d), "ExpiringDict()")
     d['a'] = 'x'
     eq_(str(d), "ExpiringDict([('a', 'x')])")
     sleep(0.01)
-    eq_(str(d), "ExpiringDict([])")
+    eq_(str(d), "ExpiringDict()")
 
 
 def test_iter():
@@ -116,8 +117,14 @@ def test_setdefault():
 def test_not_implemented():
     d = ExpiringDict(max_len=10, max_age_seconds=10)
     assert_raises(NotImplementedError, d.fromkeys)
-    assert_raises(NotImplementedError, d.iteritems)
-    assert_raises(NotImplementedError, d.itervalues)
     assert_raises(NotImplementedError, d.viewitems)
     assert_raises(NotImplementedError, d.viewkeys)
     assert_raises(NotImplementedError, d.viewvalues)
+
+def test_len():
+    d = ExpiringDict(max_len=10, max_age_seconds=0.01)
+    eq_(0, len(d))
+    d['a'] = 'z'
+    eq_(1, len(d))
+    sleep(0.01)
+    eq_(0, len(d))
