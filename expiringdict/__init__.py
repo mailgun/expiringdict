@@ -27,7 +27,7 @@ except ImportError:
 
 
 class ExpiringDict(OrderedDict):
-    def __init__(self, max_len, max_age_seconds):
+    def __init__(self, max_len, max_age_seconds, callback=None):
         assert max_age_seconds >= 0
         assert max_len >= 1
 
@@ -35,6 +35,7 @@ class ExpiringDict(OrderedDict):
         self.max_len = max_len
         self.max_age = max_age_seconds
         self.lock = RLock()
+        self.callback = callback
 
         if sys.version_info >= (3, 5):
             self._safe_keys = lambda: list(self.keys())
@@ -49,6 +50,8 @@ class ExpiringDict(OrderedDict):
                 if time.time() - item[1] < self.max_age:
                     return True
                 else:
+                    if self.callback:
+                        self.callback(item[0])
                     del self[key]
         except KeyError:
             pass
@@ -68,6 +71,8 @@ class ExpiringDict(OrderedDict):
                 else:
                     return item[0]
             else:
+                if self.callback:
+                    self.callback(item[0])
                 del self[key]
                 raise KeyError(key)
 
