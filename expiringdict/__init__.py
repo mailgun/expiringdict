@@ -17,6 +17,7 @@ NOTE: iteration over dict and also keys() do not remove expired values!
 
 import time
 from threading import RLock
+import sys
 
 try:
     from collections import OrderedDict
@@ -71,7 +72,7 @@ class ExpiringDict(OrderedDict):
             if len(self) == self.max_len:
                 try:
                     self.popitem(last=False)
-                except:
+                except KeyError:
                     pass
             OrderedDict.__setitem__(self, key, (value, time.time()))
 
@@ -113,22 +114,36 @@ class ExpiringDict(OrderedDict):
     def items(self):
         """ Return a copy of the dictionary's list of (key, value) pairs. """
         r = []
-        for key in list(self.keys()):
-            try:
-                r.append((key, self[key]))
-            except KeyError:
-                pass
+        if sys.version_info >= (3, 5):
+            for key in list(self.keys()):
+                try:
+                    r.append((key, self[key]))
+                except KeyError:
+                    pass
+        else:
+            for key in self:
+                try:
+                    r.append((key, self[key]))
+                except KeyError:
+                    pass
         return r
 
     def values(self):
         """ Return a copy of the dictionary's list of values.
         See the note for dict.items(). """
         r = []
-        for key in list(self.keys()):
-            try:
-                r.append(self[key])
-            except KeyError:
-                pass
+        if sys.version_info >= (3, 5):
+            for key in list(self.keys()):
+                try:
+                    r.append(self[key])
+                except KeyError:
+                    pass
+        else:
+            for key in self:
+                try:
+                    r.append(self[key])
+                except KeyError:
+                    pass
         return r
 
     def fromkeys(self):
