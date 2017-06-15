@@ -36,6 +36,11 @@ class ExpiringDict(OrderedDict):
         self.max_age = max_age_seconds
         self.lock = RLock()
 
+        if sys.version_info >= (3, 5):
+            self._safe_keys = lambda: list(self.keys())
+        else:
+            self._safe_keys = self.keys
+
     def __contains__(self, key):
         """ Return True if the dict has a key, else return False. """
         try:
@@ -114,36 +119,22 @@ class ExpiringDict(OrderedDict):
     def items(self):
         """ Return a copy of the dictionary's list of (key, value) pairs. """
         r = []
-        if sys.version_info >= (3, 5):
-            for key in list(self.keys()):
-                try:
-                    r.append((key, self[key]))
-                except KeyError:
-                    pass
-        else:
-            for key in self:
-                try:
-                    r.append((key, self[key]))
-                except KeyError:
-                    pass
+        for key in self._safe_keys():
+            try:
+                r.append((key, self[key]))
+            except KeyError:
+                pass
         return r
 
     def values(self):
         """ Return a copy of the dictionary's list of values.
         See the note for dict.items(). """
         r = []
-        if sys.version_info >= (3, 5):
-            for key in list(self.keys()):
-                try:
-                    r.append(self[key])
-                except KeyError:
-                    pass
-        else:
-            for key in self:
-                try:
-                    r.append(self[key])
-                except KeyError:
-                    pass
+        for key in self._safe_keys():
+            try:
+                r.append(self[key])
+            except KeyError:
+                pass
         return r
 
     def fromkeys(self):
