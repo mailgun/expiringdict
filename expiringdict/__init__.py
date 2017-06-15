@@ -4,7 +4,7 @@ Dictionary with auto-expiring values for caching purposes.
 Expiration happens on any access, object is locked during cleanup from expired
 values. Can not store more than max_len elements - the oldest will be deleted.
 
->>> ExpiringDict(max_len=100, max_age_seconds=10)
+>>> ExpiringDict(max_len=100, max_age_seconds=10, logging=False)
 
 The values stored in the following way:
 {
@@ -15,6 +15,7 @@ The values stored in the following way:
 NOTE: iteration over dict and also keys() do not remove expired values!
 '''
 
+import syslog
 import time
 from threading import RLock
 import sys
@@ -27,7 +28,7 @@ except ImportError:
 
 
 class ExpiringDict(OrderedDict):
-    def __init__(self, max_len, max_age_seconds):
+    def __init__(self, max_len, max_age_seconds, logging=False):
         assert max_age_seconds >= 0
         assert max_len >= 1
 
@@ -35,6 +36,9 @@ class ExpiringDict(OrderedDict):
         self.max_len = max_len
         self.max_age = max_age_seconds
         self.lock = RLock()
+        self.logging = logging
+        if logging:
+            self.setup_syslog()
 
         if sys.version_info >= (3, 5):
             self._safe_keys = lambda: list(self.keys())
@@ -68,6 +72,7 @@ class ExpiringDict(OrderedDict):
                 else:
                     return item[0]
             else:
+                self.log_expired(key, item[0])
                 del self[key]
                 raise KeyError(key)
 
@@ -89,6 +94,7 @@ class ExpiringDict(OrderedDict):
         with self.lock:
             try:
                 item = OrderedDict.__getitem__(self, key)
+                self.log_full(key, item[0])
                 del self[key]
                 return item[0]
             except KeyError:
@@ -160,3 +166,19 @@ class ExpiringDict(OrderedDict):
     def viewvalues(self):
         """ Return a new view of the dictionary's values. """
         raise NotImplementedError()
+
+    def setup_syslog(self):
+        """ Set options for syslog. """
+        syslog.openlog('expiringdict')
+
+    def log_expired(self, key, value):
+        """ Log that we deleted an expired key. """
+        if self.logging:
+            syslog.syslog("Deleting expired entry. "
+                          "Key: %s, value: %s" % (key, value))
+
+    def log_full(self, key, value):
+        """ Log that we deleted the oldest key. """
+        if self.logging:
+            syslog.syslog("Deleting entry due to full cache. "
+                          "Key: %s, value: %s" % (key, value))
