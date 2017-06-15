@@ -1,5 +1,8 @@
-expiringdict
-------------
+Expiring Dict
+-------------
+
+.. image:: https://travis-ci.org/mailgun/expiringdict.svg?branch=master
+    :target: https://travis-ci.org/mailgun/expiringdict
 
 expiringdict is a Python caching library. The core of the library is ExpiringDict class which
 is an ordered dictionary with auto-expiring values for caching purposes. Expiration happens on
