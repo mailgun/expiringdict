@@ -1,3 +1,4 @@
+import sys
 from setuptools import setup, find_packages
 try:
     import md5  # fix for "No module named _md5" error
@@ -7,6 +8,11 @@ except ImportError:
 
 with open("README.rst") as f:
     long_description = f.read()
+
+
+requirements = []
+if sys.version_info < (2, 7):
+    requirements.append('ordereddict')
 
 
 setup(name='expiringdict',
@@ -20,4 +26,5 @@ setup(name='expiringdict',
       packages=find_packages(exclude=['tests']),
       include_package_data=True,
       zip_safe=True,
+      install_requires=requirements,
       extras_require={'test': ['nose', 'mock', 'coverage']})
