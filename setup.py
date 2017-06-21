@@ -1,7 +1,8 @@
 from setuptools import setup, find_packages
+NotFoundError = getattr(__builtins__, 'ModuleNotFoundError', ImportError)
 try:
     import md5  # fix for "No module named _md5" error
-except ImportError:
+except NotFoundError:
     # python 3 moved md5
     from hashlib import md5
 
