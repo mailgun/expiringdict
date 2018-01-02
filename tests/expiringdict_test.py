@@ -121,3 +121,21 @@ def test_not_implemented():
     assert_raises(NotImplementedError, d.viewitems)
     assert_raises(NotImplementedError, d.viewkeys)
     assert_raises(NotImplementedError, d.viewvalues)
+
+
+def test_memoize():
+    @memoize(max_len=10, max_age_seconds=10)
+    def noargs():
+        return 0
+
+    eq_(0, noargs())
+
+    @memoize(max_len=250, max_age_seconds=10)
+    def fib(n):
+        if n == 0:
+            return 0
+        elif n == 1:
+            return 1
+        return fib(n - 1) + fib(n - 2)
+
+    eq_(280571172992510140037611932413038677189525, fib(200))

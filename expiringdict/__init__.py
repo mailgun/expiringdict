@@ -160,3 +160,19 @@ class ExpiringDict(OrderedDict):
     def viewvalues(self):
         """ Return a new view of the dictionary's values. """
         raise NotImplementedError()
+
+
+def memoize(max_len, max_age_seconds):
+    cache = ExpiringDict(max_len, max_age_seconds)
+
+    def wrap(fn):
+        def wrapped_fn(*args):
+            result = cache.get(args)
+            if result is None:
+                result = fn(*args)
+                cache[args] = result
+            return result
+
+        return wrapped_fn
+
+    return wrap
