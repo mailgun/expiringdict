@@ -64,6 +64,14 @@ def test_repr():
     sleep(0.01)
     eq_(str(d), "ExpiringDict([])")
 
+def test_eviction_on_wrong_count():
+    d = ExpiringDict(max_len=3, max_age_seconds=20)
+    d['a'] = 'x'
+    d['b'] = 'y'
+    d['c'] = 'z'
+    d['b'] = 'y'
+    eq_([k for k in d], ['a', 'b', 'c'])
+    eq_([k for k in d.values()], ['x', 'y', 'z'])
 
 def test_iter():
     d = ExpiringDict(max_len=10, max_age_seconds=0.01)
@@ -111,6 +119,35 @@ def test_setdefault():
     sleep(0.01)
 
     eq_('y', d.setdefault('a', 'y'))
+
+
+def test_eviction_counting():
+    d = ExpiringDict(max_len=1, max_age_seconds=100, eviction_counter=0)
+
+    d['a'] = 'A'
+    d['b'] = 'B'
+    d['c'] = 'C'
+
+    eq_(len(d), 1)
+    eq_(d.evictions, 2)
+
+
+def test_eviction_reset():
+    d = ExpiringDict(max_len=1, max_age_seconds=100, eviction_counter=0)
+
+    d['a'] = 'A'
+    d['b'] = 'B'
+    d['c'] = 'C'
+
+    current_eviction_count = d.reset_evictions()
+    eq_(len(d), 1)
+    eq_(current_eviction_count, 2)
+    eq_(d.evictions, 0)
+    check_eviction_count = d.reset_evictions(1) # anything that supports +=
+    d['d'] = 'D'
+    eq_(len(d), 1)
+    eq_(check_eviction_count, 0) # no operations before reset
+    eq_(d.evictions, 2)  # since we started at 1
 
 
 def test_not_implemented():
