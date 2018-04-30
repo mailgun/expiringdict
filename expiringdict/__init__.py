@@ -27,13 +27,14 @@ except ImportError:
 
 
 class ExpiringDict(OrderedDict):
-    def __init__(self, max_len, max_age_seconds):
+    def __init__(self, max_len, max_age_seconds, eviction_counter=None):
         assert max_age_seconds >= 0
         assert max_len >= 1
 
         OrderedDict.__init__(self)
         self.max_len = max_len
         self.max_age = max_age_seconds
+        self.evictions = eviction_counter
         self.lock = RLock()
 
         if sys.version_info >= (3, 5):
@@ -74,12 +75,15 @@ class ExpiringDict(OrderedDict):
     def __setitem__(self, key, value):
         """ Set d[key] to value. """
         with self.lock:
-            if len(self) == self.max_len:
+            OrderedDict.__setitem__(self, key, (value, time.time()))
+            original_overage = len(self) - self.max_len
+            while len(self) > self.max_len:
                 try:
                     self.popitem(last=False)
                 except KeyError:
                     pass
-            OrderedDict.__setitem__(self, key, (value, time.time()))
+            if self.evictions is not None:
+                self.evictions += original_overage
 
     def pop(self, key, default=None):
         """ Get item from the dict and remove it.
@@ -136,6 +140,13 @@ class ExpiringDict(OrderedDict):
             except KeyError:
                 pass
         return r
+
+    def reset_evictions(self, new_value=0):
+        """ Reset the eviction count.  Returns the current value """
+        with self.lock:
+            evictions = self.evictions
+            self.evictions = new_value
+        return evictions
 
     def fromkeys(self):
         " Create a new dictionary with keys from seq and values set to value. "
