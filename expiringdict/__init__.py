@@ -1,4 +1,4 @@
-'''
+"""
 Dictionary with auto-expiring values for caching purposes.
 
 Expiration happens on any access, object is locked during cleanup from expired
@@ -13,7 +13,7 @@ The values stored in the following way:
 }
 
 NOTE: iteration over dict and also keys() do not remove expired values!
-'''
+"""
 
 import time
 from threading import RLock
