@@ -166,11 +166,12 @@ def memoize(max_len, max_age_seconds):
     cache = ExpiringDict(max_len, max_age_seconds)
 
     def wrap(fn):
-        def wrapped_fn(*args):
-            result = cache.get(args)
+        def wrapped_fn(*args, **kwargs):
+            key = (args, frozenset(kwargs.items()))
+            result = cache.get(key)
             if result is None:
                 result = fn(*args)
-                cache[args] = result
+                cache[key] = result
             return result
 
         return wrapped_fn
