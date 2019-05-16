@@ -91,7 +91,8 @@ def test_ttl():
     d['a'] = 'x'
 
     # existent non-expired key
-    ok_(0 < d.ttl('a') < 10)
+    # TTL can be 10 if the machine is very fast.
+    ok_(0 < d.ttl('a') <= 10)
 
     # non-existent key
     eq_(None, d.ttl('b'))
