@@ -1,7 +1,9 @@
 language: python
 python:
-  - "3.5"
-
-sudo: false
-install: "pip install -r requirements.txt"
-script: tox
+  - 2.7
+  - 3.6
+install:
+  - pip install -e .[tests]
+script: nosetests --with-coverage --cover-package=expiringdict
+after_success:
+  - coveralls
