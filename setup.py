@@ -10,6 +10,7 @@ with open("README.rst") as f:
 
 
 tests_require = [
+    "dill",
     "coverage",
     "coveralls",
     "mock",
