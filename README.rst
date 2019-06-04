@@ -55,3 +55,37 @@ put and get a value there:
 
      cache["key"] = "value"
      cache.get("key")
+
+copy from dict or OrderedDict:
+
+.. code-block:: py
+
+     from expiringdict import ExpiringDict
+     my_dict=dict()
+     my_dict['test'] = 1
+     cache = ExpiringDict(max_len=100, max_age_seconds=10, items=my_dict)
+     assert cache['test'] == 1
+
+copy from another ExpiringDict, with or without new length and timeout:
+
+.. code-block:: py
+
+     from expiringdict import ExpiringDict
+     cache_hour = ExpiringDict(max_len=100, max_age_seconds=3600)
+     cache_hour['test'] = 1
+     cache_hour_copy = ExpiringDict(max_len=None, max_age_seconds=None, items=cache_hour)
+     cache_minute_copy = ExpiringDict(max_len=None, max_age_seconds=60, items=cache_hour)
+     assert cache_minute_copy['test'] == 1
+
+
+pickle :
+
+.. code-block:: py
+
+    import dill
+    from expiringdict import ExpiringDict
+    cache = ExpiringDict(max_len=100, max_age_seconds=10)
+    cache['test'] = 1
+    pickled_cache = dill.dumps(cache)
+    unpickled_cache = dill.loads(cache)
+    assert unpickled_cache['test'] == 1

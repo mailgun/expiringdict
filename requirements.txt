@@ -11,3 +11,4 @@ pyparsing==2.2.0
 six==1.10.0
 tox==2.7.0
 virtualenv==15.1.0
+typing
