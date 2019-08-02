@@ -56,15 +56,16 @@ class ExpiringDict(OrderedDict):
                 raise ValueError('can not unpack items')
 
     def __len__(self):
-        current_key = iter(self)
-        for k in current_key:
-            item = OrderedDict.__getitem__(self, k)
-            time_added = item[1]
-            item_age = time.time() - time_added
-            if item_age > self.max_age:
-                del self[k]
-            else:
-                break
+        with self.lock:
+            current_key = iter(self)
+            for k in current_key:
+                item = OrderedDict.__getitem__(self, k)
+                time_added = item[1]
+                item_age = time.time() - time_added
+                if item_age > self.max_age:
+                    del self[k]
+                else:
+                    break
 
         return super(ExpiringDict, self).__len__()
 
