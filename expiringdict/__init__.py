@@ -72,6 +72,11 @@ class ExpiringDict(OrderedDict):
 
         return super(ExpiringDict, self).__len__()
 
+    def __repr__(self):
+        if len(self) == 0:
+            return "ExpiringDict([])"
+        return super(ExpiringDict, self).__repr__()
+
     def __contains__(self, key):
         """ Return True if the dict has a key, else return False. """
         try:
