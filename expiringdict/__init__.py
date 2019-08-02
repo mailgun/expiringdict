@@ -58,14 +58,17 @@ class ExpiringDict(OrderedDict):
     def __len__(self):
         with self.lock:
             current_key = iter(self)
+            keys_to_del = []
             for k in current_key:
                 item = OrderedDict.__getitem__(self, k)
                 time_added = item[1]
                 item_age = time.time() - time_added
                 if item_age > self.max_age:
-                    del self[k]
+                    keys_to_del.append(k)
                 else:
                     break
+            for k in keys_to_del:
+                del self[k]
 
         return super(ExpiringDict, self).__len__()
 

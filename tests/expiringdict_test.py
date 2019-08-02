@@ -65,7 +65,7 @@ def test_repr():
     d['a'] = 'x'
     eq_(str(d), "ExpiringDict([('a', 'x')])")
     sleep(0.01)
-    eq_(str(d), "ExpiringDict()")
+    eq_(str(d), "ExpiringDict([])")
 
 
 def test_iter():
