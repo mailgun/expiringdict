@@ -28,7 +28,7 @@ except ImportError:
 
 
 class ExpiringDict(OrderedDict):
-    def __init__(self, max_len, max_age_seconds, items=None):
+    def __init__(self, max_len, max_age_seconds, items=None, auto_refresh=False):
         # type: (Union[int, None], Union[float, None], Union[None,dict,OrderedDict,ExpiringDict]) -> None
 
         if not self.__is_instance_of_expiring_dict(items):
@@ -38,6 +38,7 @@ class ExpiringDict(OrderedDict):
         self.max_len = max_len
         self.max_age = max_age_seconds
         self.lock = RLock()
+        self.auto_refresh = auto_refresh
 
         if sys.version_info >= (3, 5):
             self._safe_keys = lambda: list(self.keys())
@@ -77,6 +78,10 @@ class ExpiringDict(OrderedDict):
             item = OrderedDict.__getitem__(self, key)
             item_age = time.time() - item[1]
             if item_age < self.max_age:
+                if self.auto_refresh:
+                    set_time = time.time()
+                    OrderedDict.__setitem__(self, key, (item[0], set_time))
+                
                 if with_age:
                     return item[0], item_age
                 else:

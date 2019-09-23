@@ -51,6 +51,28 @@ def test_basics():
     del d['e']
     ok_('e' not in d)
 
+def test_auto_refresh():
+    d = ExpiringDict(max_len=3, max_age_seconds=0.01, auto_refresh=True)
+    d['a'] = 'x'
+    eq_(d.get('a'), 'x')
+    sleep(0.005)
+    d['a']
+    sleep(0.005)
+    eq_(d.get('a'), 'x')
+    sleep(0.01)
+    eq_(d.get('a'), None)
+
+    d = ExpiringDict(max_len=3, max_age_seconds=0.01, auto_refresh=False)
+    d['a'] = 'x'
+    eq_(d.get('a'), 'x')
+    sleep(0.005)
+    d['a']
+    sleep(0.005)
+    eq_(d.get('a'), None)
+    sleep(0.01)
+    eq_(d.get('a'), None)
+
+
 
 def test_pop():
     d = ExpiringDict(max_len=3, max_age_seconds=0.01)
