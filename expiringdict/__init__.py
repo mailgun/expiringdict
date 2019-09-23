@@ -16,7 +16,7 @@ NOTE: iteration over dict and also keys() do not remove expired values!
 """
 
 import time
-from threading import RLock
+from threading import RLock,Thread
 import sys
 from typing import Any, Union
 
@@ -28,7 +28,7 @@ except ImportError:
 
 
 class ExpiringDict(OrderedDict):
-    def __init__(self, max_len, max_age_seconds, items=None, auto_refresh=False):
+    def __init__(self, max_len, max_age_seconds, items=None, auto_refresh=False, auto_expired=False):
         # type: (Union[int, None], Union[float, None], Union[None,dict,OrderedDict,ExpiringDict]) -> None
 
         if not self.__is_instance_of_expiring_dict(items):
@@ -56,6 +56,21 @@ class ExpiringDict(OrderedDict):
             else:
                 raise ValueError('can not unpack items')
 
+        if auto_expired:
+            self.thread = Thread(target=self._expiring_key, args=())
+            self.thread.setDaemon(True)
+            self.thread.start()
+
+    def _expiring_key(self):
+        while True:
+            for key in self._safe_keys():
+                try:
+                    self.__getitem__(key, expired_check=True)
+                except KeyError:
+                    pass
+                
+            time.sleep(0.1)
+
     def __contains__(self, key):
         """ Return True if the dict has a key, else return False. """
         try:
@@ -69,7 +84,7 @@ class ExpiringDict(OrderedDict):
             pass
         return False
 
-    def __getitem__(self, key, with_age=False):
+    def __getitem__(self, key, with_age=False, expired_check=False):
         """ Return the item of the dict.
 
         Raises a KeyError if key is not in the map.
@@ -78,7 +93,7 @@ class ExpiringDict(OrderedDict):
             item = OrderedDict.__getitem__(self, key)
             item_age = time.time() - item[1]
             if item_age < self.max_age:
-                if self.auto_refresh:
+                if self.auto_refresh and not expired_check:
                     set_time = time.time()
                     OrderedDict.__setitem__(self, key, (item[0], set_time))
                 

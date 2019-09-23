@@ -4,7 +4,11 @@ from mock import Mock, patch
 from nose.tools import assert_raises, eq_, ok_
 
 from expiringdict import ExpiringDict
-
+try:
+    from collections import OrderedDict
+except ImportError:
+    # Python < 2.7
+    from ordereddict import OrderedDict
 
 def test_create():
     assert_raises(AssertionError, ExpiringDict, max_len=1, max_age_seconds=-1)
@@ -72,6 +76,15 @@ def test_auto_refresh():
     sleep(0.01)
     eq_(d.get('a'), None)
 
+def test_auto_expired():
+    d = ExpiringDict(max_len=3, max_age_seconds=0.1, auto_expired=True)
+    d['a'] = 'x'
+    d['b'] = 'y'
+    sleep(1)
+    ok_('a' not in d._safe_keys())
+    ok_('b' not in d._safe_keys())
+    eq_(d.get('a'), None)
+    eq_(d.get('b'), None)
 
 
 def test_pop():
