@@ -122,3 +122,46 @@ def test_not_implemented():
     assert_raises(NotImplementedError, d.viewitems)
     assert_raises(NotImplementedError, d.viewkeys)
     assert_raises(NotImplementedError, d.viewvalues)
+
+
+def test_cleanup_on_length():
+    d = ExpiringDict(max_len=10, max_age_seconds=0.01)
+    d['a'] = 'x'
+    eq_(1, len(d))
+    sleep(0.01)
+    eq_(0, len(d))
+
+    d = ExpiringDict(max_len=10, max_age_seconds=0.02)
+    d['a'] = 1
+    sleep(0.01)
+    eq_(1, len(d))
+    d['b'] = 2
+    sleep(0.01)
+    eq_(1, len(d))
+    d['c'] = 3
+    sleep(0.01)
+    eq_(1, len(d))
+    d['d'] = 4
+    sleep(0.01)
+    eq_(1, len(d))
+
+    d = ExpiringDict(max_len=1000, max_age_seconds=.5)
+    d[1] = 1
+    d[2] = 2
+    d[3] = 3
+    d[4] = 4
+
+    ok_(1 in d)
+    ok_(2 in d)
+    ok_(3 in d)
+    ok_(4 in d)
+    eq_(4, len(d))
+
+    sleep(.25)
+    d[1] = 1
+    d[2] = 2
+    sleep(.40)
+    ok_(1 in d)
+    ok_(2 in d)
+    ok_(3 not in d)
+    ok_(4 not in d)
