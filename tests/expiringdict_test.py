@@ -3,7 +3,7 @@ from time import sleep
 from mock import Mock, patch
 from nose.tools import assert_raises, eq_, ok_
 
-from expiringdict import ExpiringDict
+from expiringdict import ExpiringDict, memoize
 
 
 def test_create():
