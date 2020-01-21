@@ -40,5 +40,6 @@ setup(name="expiringdict",
           "typing",
       ],
       extras_require={
+          "test": tests_require,
           "tests": tests_require,
       })
