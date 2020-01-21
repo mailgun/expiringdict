@@ -1,7 +1,9 @@
 from time import sleep
 
-from expiringdict import *
-from . import *
+from mock import Mock, patch
+from nose.tools import assert_raises, eq_, ok_
+
+from expiringdict import ExpiringDict
 
 
 def test_create():
@@ -118,8 +120,6 @@ def test_setdefault():
 def test_not_implemented():
     d = ExpiringDict(max_len=10, max_age_seconds=10)
     assert_raises(NotImplementedError, d.fromkeys)
-    assert_raises(NotImplementedError, d.iteritems)
-    assert_raises(NotImplementedError, d.itervalues)
     assert_raises(NotImplementedError, d.viewitems)
     assert_raises(NotImplementedError, d.viewkeys)
     assert_raises(NotImplementedError, d.viewvalues)

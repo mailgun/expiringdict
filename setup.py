@@ -5,19 +5,40 @@ except ImportError:
     # python 3 moved md5
     from hashlib import md5
 
-with open("README.rst") as f:
-    long_description = f.read()
+tests_require = [
+    "dill",
+    "coverage",
+    "coveralls",
+    "mock",
+    "nose",
+]
 
-
-setup(name='expiringdict',
-      version='1.1.4',
+setup(name="expiringdict",
+      version="1.2.0",
       description="Dictionary with auto-expiring values for caching purposes",
-      long_description=long_description,
-      author='Anton Efimenko',
-      author_email='anton@mailgunhq.com',
-      url='https://github.com/mailgun/expiringdict',
-      license='Apache 2',
-      packages=find_packages(exclude=['tests']),
+      long_description=open("README.rst").read(),
+      classifiers=[
+          "Development Status :: 4 - Beta",
+          "Intended Audience :: Developers",
+          "License :: OSI Approved :: Apache Software License",
+          "Programming Language :: Python :: 2",
+          "Programming Language :: Python :: 2.7",
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.6",
+          "Topic :: Software Development :: Libraries",
+      ],
+      keywords="",
+      author="Mailgun Technologies Inc.",
+      author_email="admin@mailgun.com",
+      url="https://www.mailgun.com/",
+      license="Apache 2",
+      packages=find_packages(exclude=["tests"]),
       include_package_data=True,
       zip_safe=True,
-      extras_require={'test': ['nose', 'mock', 'coverage']})
+      tests_require=tests_require,
+      install_requires=[
+          "typing",
+      ],
+      extras_require={
+          "tests": tests_require,
+      })
