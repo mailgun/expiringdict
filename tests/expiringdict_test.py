@@ -122,3 +122,14 @@ def test_not_implemented():
     assert_raises(NotImplementedError, d.viewitems)
     assert_raises(NotImplementedError, d.viewkeys)
     assert_raises(NotImplementedError, d.viewvalues)
+
+
+def test_reset_of_key_no_trim():
+    """Re-setting an existing key should not cause a non-expired key to be dropped"""
+    d = ExpiringDict(max_len=2, max_age_seconds=10)
+    d["a"] = "A"
+    d["b"] = "B"
+
+    d["b"] = "B"
+
+    assert "a" in d

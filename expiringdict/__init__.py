@@ -89,10 +89,13 @@ class ExpiringDict(OrderedDict):
         """ Set d[key] to value. """
         with self.lock:
             if len(self) == self.max_len:
-                try:
-                    self.popitem(last=False)
-                except KeyError:
-                    pass
+                if key in self:
+                    del self[key]
+                else:
+                    try:
+                        self.popitem(last=False)
+                    except KeyError:
+                        pass
             if set_time is None:
                 set_time = time.time()
             OrderedDict.__setitem__(self, key, (value, set_time))
