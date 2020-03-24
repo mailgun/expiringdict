@@ -37,7 +37,7 @@ setup(name="expiringdict",
       zip_safe=True,
       tests_require=tests_require,
       install_requires=[
-          "typing",
+          'typing;python_version<"3.5"',
       ],
       extras_require={
           "tests": tests_require,
