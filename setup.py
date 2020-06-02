@@ -14,7 +14,7 @@ tests_require = [
 ]
 
 setup(name="expiringdict",
-      version="1.2.0",
+      version="1.2.1",
       description="Dictionary with auto-expiring values for caching purposes",
       long_description=open("README.rst").read(),
       classifiers=[
