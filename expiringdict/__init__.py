@@ -60,7 +60,7 @@ class ExpiringDict(OrderedDict):
         try:
             with self.lock:
                 item = OrderedDict.__getitem__(self, key)
-                if time.time() - item[1] < self.max_age:
+                if self.max_age == -1 or time.time() - item[1] < self.max_age:
                     return True
                 else:
                     del self[key]
@@ -76,7 +76,7 @@ class ExpiringDict(OrderedDict):
         with self.lock:
             item = OrderedDict.__getitem__(self, key)
             item_age = time.time() - item[1]
-            if item_age < self.max_age:
+            if self.max_age == -1 or item_age < self.max_age:
                 if with_age:
                     return item[0], item_age
                 else:
@@ -204,7 +204,7 @@ class ExpiringDict(OrderedDict):
 
     @staticmethod
     def __assert_max_age_seconds(max_age_seconds):
-        assert max_age_seconds >= 0
+        assert max_age_seconds >= -1
 
     @staticmethod
     def __is_reduced_result(items):

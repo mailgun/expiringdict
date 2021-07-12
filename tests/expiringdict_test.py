@@ -133,3 +133,9 @@ def test_reset_of_key_no_trim():
     d["b"] = "B"
 
     assert "a" in d
+
+def test_non_expiring():
+    d = ExpiringDict(max_len=1, max_age_seconds=-1)
+    d['a'] = 'x'
+    sleep(1)
+    eq_(d.get('a'), 'x')
