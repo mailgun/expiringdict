@@ -18,7 +18,7 @@ NOTE: iteration over dict and also keys() do not remove expired values!
 import time
 from threading import RLock
 import sys
-from typing import Any, Union
+from typing import Any, Union, Optional, Callable
 
 try:
     from collections import OrderedDict
@@ -28,8 +28,11 @@ except ImportError:
 
 
 class ExpiringDict(OrderedDict):
-    def __init__(self, max_len, max_age_seconds, items=None):
-        # type: (Union[int, None], Union[float, None], Union[None,dict,OrderedDict,ExpiringDict]) -> None
+    def __init__(self,
+                 max_len:         int,
+                 max_age_seconds: float,
+                 items:           Optional[Union[dict, OrderedDict, 'ExpiringDict']] = None,
+                 on_delete:       Optional[Callable] = None) -> None:
 
         if not self.__is_instance_of_expiring_dict(items):
             self.__assertions(max_len, max_age_seconds)
@@ -38,6 +41,8 @@ class ExpiringDict(OrderedDict):
         self.max_len = max_len
         self.max_age = max_age_seconds
         self.lock = RLock()
+
+        self.on_delete = on_delete
 
         if sys.version_info >= (3, 5):
             self._safe_keys = lambda: list(self.keys())
@@ -88,17 +93,23 @@ class ExpiringDict(OrderedDict):
     def __setitem__(self, key, value, set_time=None):
         """ Set d[key] to value. """
         with self.lock:
+            if key in self:
+                OrderedDict.__delitem__(self, key)
+
             if len(self) == self.max_len:
-                if key in self:
-                    del self[key]
-                else:
-                    try:
-                        self.popitem(last=False)
-                    except KeyError:
-                        pass
+                try:
+                    self.popitem(last=False)
+                except KeyError:
+                    pass
             if set_time is None:
                 set_time = time.time()
             OrderedDict.__setitem__(self, key, (value, set_time))
+
+    def __delitem__(self, key):
+        if callable(self.on_delete):
+            value, _ = OrderedDict.__getitem__(self, key)
+            self.on_delete(key, value)
+        OrderedDict.__delitem__(self, key)
 
     def pop(self, key, default=None):
         """ Get item from the dict and remove it.
