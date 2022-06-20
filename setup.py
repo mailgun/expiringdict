@@ -1,4 +1,10 @@
 from setuptools import setup, find_packages
+
+try:
+    ModuleNotFoundError
+except NameError:
+    ModuleNotFoundError = ImportError
+
 try:
     import md5  # fix for "No module named _md5" error
 except ImportError:
@@ -14,7 +20,7 @@ tests_require = [
 ]
 
 setup(name="expiringdict",
-      version="1.2.1",
+      version="1.2.2",
       description="Dictionary with auto-expiring values for caching purposes",
       long_description=open("README.rst").read(),
       classifiers=[
