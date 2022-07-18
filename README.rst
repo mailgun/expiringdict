@@ -56,6 +56,20 @@ Create a dictionary with capacity for 100 elements and elements expiring in 10 s
     from expiringdict import ExpiringDict
     cache = ExpiringDict(max_len=100, max_age_seconds=10)
 
+Create a dictionary with elements expiring in 10 seconds and anto refresh expired time when getitem:
+
+.. code-block:: py
+
+    from expiringdict import ExpiringDict
+    cache = ExpiringDict(max_age_seconds=10, auto_refresh=True)
+
+Create a dictionary with auto expired:
+
+.. code-block:: py
+
+    from expiringdict import ExpiringDict
+    cache = ExpiringDict(max_age_seconds=10, auto_expired=True)
+
 put and get a value there:
 
 .. code-block:: py
