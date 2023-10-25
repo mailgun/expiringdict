@@ -1,4 +1,0 @@
-recursive-include *.py
-include LICENSE
-include README.rst
-include MANIFEST.in
