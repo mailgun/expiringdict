@@ -15,10 +15,9 @@ The values stored in the following way:
 NOTE: iteration over dict and also keys() do not remove expired values!
 """
 
+import sys
 import time
 from threading import RLock
-import sys
-from typing import Any, Union
 
 try:
     from collections import OrderedDict
@@ -53,10 +52,10 @@ class ExpiringDict(OrderedDict):
                 self.__copy_reduced_result(items)
 
             else:
-                raise ValueError('can not unpack items')
+                raise ValueError("can not unpack items")
 
     def __contains__(self, key):
-        """ Return True if the dict has a key, else return False. """
+        """Return True if the dict has a key, else return False."""
         try:
             with self.lock:
                 item = OrderedDict.__getitem__(self, key)
@@ -69,7 +68,7 @@ class ExpiringDict(OrderedDict):
         return False
 
     def __getitem__(self, key, with_age=False):
-        """ Return the item of the dict.
+        """Return the item of the dict.
 
         Raises a KeyError if key is not in the map.
         """
@@ -86,7 +85,7 @@ class ExpiringDict(OrderedDict):
                 raise KeyError(key)
 
     def __setitem__(self, key, value, set_time=None):
-        """ Set d[key] to value. """
+        """Set d[key] to value."""
         with self.lock:
             if len(self) == self.max_len:
                 if key in self:
@@ -101,7 +100,7 @@ class ExpiringDict(OrderedDict):
             OrderedDict.__setitem__(self, key, (value, set_time))
 
     def pop(self, key, default=None):
-        """ Get item from the dict and remove it.
+        """Get item from the dict and remove it.
 
         Return default if expired or does not exist. Never raise KeyError.
         """
@@ -114,7 +113,7 @@ class ExpiringDict(OrderedDict):
                 return default
 
     def ttl(self, key):
-        """ Return TTL of the `key` (in seconds).
+        """Return TTL of the `key` (in seconds).
 
         Returns None for non-existent or expired keys.
         """
@@ -126,7 +125,7 @@ class ExpiringDict(OrderedDict):
         return None
 
     def get(self, key, default=None, with_age=False):
-        """ Return the value for key if key is in the dictionary, else default. """
+        """Return the value for key if key is in the dictionary, else default."""
         try:
             return self.__getitem__(key, with_age)
         except KeyError:
@@ -136,7 +135,7 @@ class ExpiringDict(OrderedDict):
                 return default
 
     def items(self):
-        """ Return a copy of the dictionary's list of (key, value) pairs. """
+        """Return a copy of the dictionary's list of (key, value) pairs."""
         r = []
         for key in self._safe_keys():
             try:
@@ -146,7 +145,7 @@ class ExpiringDict(OrderedDict):
         return r
 
     def items_with_timestamp(self):
-        """ Return a copy of the dictionary's list of (key, value, timestamp) triples. """
+        """Return a copy of the dictionary's list of (key, value, timestamp) triples."""
         r = []
         for key in self._safe_keys():
             try:
@@ -156,8 +155,8 @@ class ExpiringDict(OrderedDict):
         return r
 
     def values(self):
-        """ Return a copy of the dictionary's list of values.
-        See the note for dict.items(). """
+        """Return a copy of the dictionary's list of values.
+        See the note for dict.items()."""
         r = []
         for key in self._safe_keys():
             try:
@@ -167,31 +166,31 @@ class ExpiringDict(OrderedDict):
         return r
 
     def fromkeys(self):
-        """ Create a new dictionary with keys from seq and values set to value. """
+        """Create a new dictionary with keys from seq and values set to value."""
         raise NotImplementedError()
 
     def iteritems(self):
-        """ Return an iterator over the dictionary's (key, value) pairs. """
+        """Return an iterator over the dictionary's (key, value) pairs."""
         raise NotImplementedError()
 
     def itervalues(self):
-        """ Return an iterator over the dictionary's values. """
+        """Return an iterator over the dictionary's values."""
         raise NotImplementedError()
 
     def viewitems(self):
-        """ Return a new view of the dictionary's items ((key, value) pairs). """
+        """Return a new view of the dictionary's items ((key, value) pairs)."""
         raise NotImplementedError()
 
     def viewkeys(self):
-        """ Return a new view of the dictionary's keys. """
+        """Return a new view of the dictionary's keys."""
         raise NotImplementedError()
 
     def viewvalues(self):
-        """ Return a new view of the dictionary's values. """
+        """Return a new view of the dictionary's values."""
         raise NotImplementedError()
 
     def __reduce__(self):
-        reduced = self.__class__, (self.max_len, self.max_age, ('reduce_result', self.items_with_timestamp()))
+        reduced = self.__class__, (self.max_len, self.max_age, ("reduce_result", self.items_with_timestamp()))
         return reduced
 
     def __assertions(self, max_len, max_age_seconds):
@@ -208,7 +207,7 @@ class ExpiringDict(OrderedDict):
 
     @staticmethod
     def __is_reduced_result(items):
-        if len(items) == 2 and items[0] == 'reduce_result':
+        if len(items) == 2 and items[0] == "reduce_result":
             return True
         return False
 
