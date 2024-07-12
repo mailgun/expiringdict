@@ -85,6 +85,9 @@ class ExpiringDict(OrderedDict):
                 del self[key]
                 raise KeyError(key)
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.items()})"
+
     def __setitem__(self, key, value, set_time=None):
         """ Set d[key] to value. """
         with self.lock:
