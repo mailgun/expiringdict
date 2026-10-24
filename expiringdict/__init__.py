@@ -107,9 +107,9 @@ class ExpiringDict(OrderedDict):
         """
         with self.lock:
             try:
-                item = OrderedDict.__getitem__(self, key)
+                item = self[key]
                 del self[key]
-                return item[0]
+                return item
             except KeyError:
                 return default
 
