@@ -94,7 +94,7 @@ def test_ttl():
     d['a'] = 'x'
 
     # existent non-expired key
-    ok_(0 < d.ttl('a') < 10)
+    ok_(0 < d.ttl('a') <= 10)
 
     # non-existent key
     eq_(None, d.ttl('b'))
@@ -133,3 +133,22 @@ def test_reset_of_key_no_trim():
     d["b"] = "B"
 
     assert "a" in d
+
+
+def test_ttl_immediately_after_insertion():
+    with patch('expiringdict.time.time', return_value=100):
+        d = ExpiringDict(max_len=3, max_age_seconds=10)
+        d['key'] = 'value'
+        eq_(d.ttl('key'), 10)
+        eq_(d['key'], 'value')
+
+
+def test_ttl_decreases_and_expires():
+    with patch('expiringdict.time.time', return_value=100) as clock:
+        d = ExpiringDict(max_len=3, max_age_seconds=10)
+        d['key'] = 'value'
+        clock.return_value = 104
+        eq_(d.ttl('key'), 6)
+        clock.return_value = 110
+        eq_(d.ttl('key'), None)
+        eq_(d.ttl('missing'), None)

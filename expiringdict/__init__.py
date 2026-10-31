@@ -119,7 +119,7 @@ class ExpiringDict(OrderedDict):
         Returns None for non-existent or expired keys.
         """
         key_value, key_age = self.get(key, with_age=True)  # type: Any, Union[None, float]
-        if key_age:
+        if key_age is not None:
             key_ttl = self.max_age - key_age
             if key_ttl > 0:
                 return key_ttl
