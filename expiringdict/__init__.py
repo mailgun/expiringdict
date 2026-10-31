@@ -166,6 +166,11 @@ class ExpiringDict(OrderedDict):
                 pass
         return r
 
+    def copy(self):
+        """Return a shallow copy with the same limits and insertion times."""
+        with self.lock:
+            return self.__class__(self.max_len, self.max_age, items=self)
+
     def fromkeys(self):
         """ Create a new dictionary with keys from seq and values set to value. """
         raise NotImplementedError()
